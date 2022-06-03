@@ -101,7 +101,7 @@ export const Map: React.FC<MapProps> = ({ children, style, ...props }) => {
 export function MapContainer(props: { onSelectSpot?: Function }) {
   return (
     <div className="map-container">
-      <Wrapper apiKey={'AIzaSyAom84Ge0ABMmVZXdbaLTj8fvA8qCa4LC0'} render={render}>
+      <Wrapper apiKey={process.env.REACT_APP_GM_API_KEY || ''} render={render}>
         <Map
           style={{ flexGrow: '1', height: '100%' }}
           center={{
