@@ -1,0 +1,22 @@
+.selected-spot-overlay {
+  position: fixed;
+  bottom: 2rem;
+  right: 1rem;
+
+  width: 20rem;
+  padding: 1rem;
+
+  border-radius: 0.5rem;
+
+  z-index: 100;
+
+  .title {
+    font-weight: bold;  
+    font-size: 1.5em;
+  }
+
+  @include themed() {
+    background-color: t($bkg);
+    color: t($color);
+  }
+}

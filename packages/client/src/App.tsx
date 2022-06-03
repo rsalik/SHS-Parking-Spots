@@ -1,17 +1,15 @@
 import React from 'react';
-import './App.css';
+import { MapContainer } from './components/MapContainer';
+import SelectedSpotOverlay from './components/SelectedSpotOverlay';
+import './styles/style.scss';
 
 function App() {
+  const [selectedSpot, setSelectedSpot] = React.useState<number | null>(null);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-          Learn React
-        </a>
-      </header>
+    <div className={`App theme--default`}>
+      <MapContainer onSelectSpot={setSelectedSpot} />
+      {selectedSpot && <SelectedSpotOverlay spot={selectedSpot} />}
     </div>
   );
 }
