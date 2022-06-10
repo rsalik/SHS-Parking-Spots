@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Wrapper, Status } from '@googlemaps/react-wrapper';
 import { getPolygons, SpotPolygon } from '../map-data/polygonParser';
@@ -12,18 +12,29 @@ interface MapProps extends google.maps.MapOptions {
   children?: React.ReactNode;
   onSelectSpot?: Function;
   style: { [key: string]: string };
+  spot?: number;
 }
 
 export const Map: React.FC<MapProps> = ({ children, style, ...props }) => {
   const ref = React.useRef<HTMLDivElement>(null);
 
-  const [map, setMap] = React.useState<google.maps.Map>();
-  const [polygons, setPolygons] = React.useState<SpotPolygon[]>([]);
+  const [map, setMap] = useState<google.maps.Map>();
+  const [polygons, setPolygons] = useState<SpotPolygon[]>([]);
 
   // Get Polygons
   useEffect(() => {
     getPolygons().then(setPolygons);
   }, []);
+
+  // For checkout maps that show a specific spot, set the center to that spot
+  useEffect(() => {
+    if (polygons.length && props.spot) {
+      const spot = polygons.find((p) => p.spot === props.spot);
+      if (spot) {
+        map?.setCenter({ lat: spot.polygon.getPath().getAt(0).lat(), lng: spot.polygon.getPath().getAt(0).lng() });
+      }
+    }
+  }, [polygons, props.spot, map]);
 
   const { onSelectSpot } = props;
 
@@ -32,40 +43,54 @@ export const Map: React.FC<MapProps> = ({ children, style, ...props }) => {
     if (map) {
       polygons.forEach((s) => {
         s.polygon.setMap(map);
-        s.polygon.addListener('click', () => {
-          polygons.forEach((s) => {
-            s.polygon.setOptions({
-              fillColor: POLYGON_FREE,
-              strokeColor: POLYGON_FREE,
-              fillOpacity: POLYGON_FILL_OPACITY,
-              zIndex: 1,
-            });
-          });
 
+        if (!props.spot) {
+          s.polygon.addListener('click', () => {
+            polygons.forEach((s) => {
+              s.polygon.setOptions({
+                fillColor: POLYGON_FREE,
+                strokeColor: POLYGON_FREE,
+                fillOpacity: POLYGON_FILL_OPACITY,
+                zIndex: 1,
+              });
+            });
+
+            s.polygon.setOptions({
+              fillColor: POLYGON_SELECTED_FREE,
+              strokeColor: POLYGON_SELECTED_FREE,
+              fillOpacity: POLYGON_SELECTED_FILL_OPACITY,
+              zIndex: 100,
+            });
+
+            onSelectSpot?.(s.spot);
+          });
+        }
+
+        if (props.spot === s.spot) {
           s.polygon.setOptions({
             fillColor: POLYGON_SELECTED_FREE,
             strokeColor: POLYGON_SELECTED_FREE,
             fillOpacity: POLYGON_SELECTED_FILL_OPACITY,
             zIndex: 100,
           });
-
-          onSelectSpot?.(s.spot);
-        });
+        }
       });
     }
-  }, [polygons, map, onSelectSpot]);
+  }, [polygons, map, onSelectSpot, props.spot]);
 
   useEffect(() => {
     if (ref.current && !map) {
       setMap(
         new window.google.maps.Map(ref.current, {
-          center: props.center,
+          center: { lat: 41.1542269, lng: -73.3286448 },
           zoom: props.zoom,
           mapTypeId: google.maps.MapTypeId.SATELLITE,
           tilt: 0,
           rotateControl: false,
           mapTypeControl: false,
           minZoom: 18,
+          disableDefaultUI: props.disableDefaultUI,
+          gestureHandling: props.gestureHandling,
           restriction: {
             latLngBounds: {
               north: 41.156819,
@@ -98,18 +123,17 @@ export const Map: React.FC<MapProps> = ({ children, style, ...props }) => {
   );
 };
 
-export function MapContainer(props: { onSelectSpot?: Function }) {
+export function MapContainer(props: { onSelectSpot?: Function; spot?: number; disableUI?: boolean }) {
   return (
     <div className="map-container">
       <Wrapper apiKey={process.env.REACT_APP_GM_API_KEY || ''} render={render}>
         <Map
           style={{ flexGrow: '1', height: '100%' }}
-          center={{
-            lat: 41.1542269,
-            lng: -73.3286448,
-          }}
-          zoom={19}
+          zoom={props.spot ? 20.5 : 19}
+          gestureHandling={props.spot === undefined ? 'control' : 'none'}
+          disableDefaultUI={props.disableUI}
           onSelectSpot={props.onSelectSpot}
+          spot={props.spot}
         ></Map>
       </Wrapper>
     </div>

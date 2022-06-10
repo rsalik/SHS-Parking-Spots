@@ -4,15 +4,55 @@
   right: 1rem;
 
   width: 20rem;
-  padding: 1rem;
+  padding: 0.5rem;
 
   border-radius: 0.5rem;
 
+  display: flex;
+  justify-content: space-between;
+
   z-index: 100;
 
-  .title {
-    font-weight: bold;  
-    font-size: 1.5em;
+  .left {
+    padding: 0.5rem;
+    .title {
+      font-weight: bold;
+      font-size: 1.5em;
+    }
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+
+    .select-btn {
+      width: 4rem;
+      height: 4rem;
+
+      border-radius: 0.2rem;
+
+      font-size: 2em;
+      font-weight: bold;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      cursor: pointer;
+
+      @include themed() {
+        background-color: t($accent);
+        color: t($bkg);
+      }
+
+      transition: background-color 0.1s ease-in-out;
+
+      &:hover {
+        @include themed() {
+          background-color: mix(t($accent), black, 80%);
+        }
+      }
+    }
   }
 
   @include themed() {

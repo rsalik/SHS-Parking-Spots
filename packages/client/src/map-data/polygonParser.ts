@@ -37,7 +37,7 @@ function generatePolygonsFromCSV(data: any[]) {
 
     polygons.push({
       spot: parseInt(line[1].replaceAll('Spot ', '')),
-      polygon: new google.maps.Polygon({
+      polygon: new window.google.maps.Polygon({
         paths: coords,
         strokeColor: POLYGON_FREE,
         strokeOpacity: POLYGON_STROKE_OPACITY,

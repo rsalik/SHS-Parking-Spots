@@ -1,0 +1,49 @@
+.header {
+  padding: 1em;
+
+  box-sizing: border-box;
+  width: 100%;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .title {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+
+  .user {
+    display: flex;
+    align-items: center;
+
+    font-size: 1.3rem;
+    font-weight: 500;
+
+    .name {
+      display: flex;
+      flex-direction: column;
+
+      .logout {
+        font-size: .6em;
+        text-decoration: underline;
+
+        text-align: right;
+
+        cursor: pointer;
+      }
+    }
+
+    .pfp {
+      display: flex;
+      align-items: center;
+
+      img {
+        margin-left: 1rem;
+        border-radius: 50%;
+        width: 2.6rem;
+        height: 2.6rem;
+      }
+    }
+  }
+}

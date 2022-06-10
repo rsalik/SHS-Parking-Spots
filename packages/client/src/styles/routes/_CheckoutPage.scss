@@ -1,0 +1,86 @@
+.checkout {
+  display: flex;
+
+  .checkout-map {
+    margin-right: .5em;
+
+    &,
+    & .map-container {
+      width: 30em;
+      height: 30em;
+    }
+
+    & div {
+      border-radius: 1em;
+    }
+
+    & div.gmnoprint div,
+    & div.gm-style-cc div {
+      border-radius: 0;
+    }
+  }
+
+  .confirm {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    width: 30em;
+    padding: 1em;
+
+    border-radius: 1em;
+
+    margin-left: 0.5em;
+
+    @include themed() {
+      border: t($accent) .2rem solid;
+    }
+
+    .title {
+      font-size: 2em;
+      font-weight: bold;
+    }
+
+    .u {
+      text-decoration: underline;
+    }
+
+    .info {
+      margin: .5rem 0;
+
+      .row {
+        margin: .2rem 0;
+        padding: .2rem .3rem;
+        border-radius: .4rem;
+
+        &:nth-of-type(even) {
+          @include themed() {
+            background-color: mix(t($bkg), t($accent), 70%);
+          }
+        }
+
+        &:nth-of-type(odd) {
+          @include themed() {
+            background-color: mix(t($bkg), t($accent), 90%);
+          }
+        }
+
+        .key {
+          font-weight: bold;
+        }
+      }
+    }
+  }
+}
+
+.return {
+  width: 100%;
+  margin-top: 1em;
+
+  text-align: center;
+
+  .btn {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
