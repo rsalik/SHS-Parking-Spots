@@ -1,13 +1,23 @@
+import { useRef, useState } from 'react';
 import { useParams } from 'react-router';
-import { getUser } from '../auth/googleAuth';
+import ConfirmationBox from '../components/ConfirmationBox';
+import LicensePlateInput from '../components/LicensePlateInput';
 import { MapContainer } from '../components/MapContainer';
 
 export default function CheckoutPage() {
   const { spot } = useParams();
 
+  const [licensePlate, setLicensePlate] = useState<string>('');
+  const [isEditingLicensePlate, setIsEditingLicensePlate] = useState<boolean>(true);
+
   if (!spot) {
     window.location.href = '/';
     return <></>;
+  }
+
+  function onSubmitLicensePlate(licensePlate: string) {
+    setLicensePlate(licensePlate);
+    setIsEditingLicensePlate(false);
   }
 
   return (
@@ -16,30 +26,11 @@ export default function CheckoutPage() {
         <div className="checkout-map">
           <MapContainer spot={parseInt(spot)} disableUI={true} />
         </div>
-        <div className="confirm">
-          <div>
-            <div className="title">Confirmation</div>
-            <div className="warning">Confirm that the following information is correct.</div>
-
-            <div className="info">
-              <div className="row">
-                <span className="key">Name</span>: {getUser().name}
-              </div>
-              <div className="row">
-                <span className="key">Email</span>: {getUser().email}
-              </div>
-              <div className="row">
-                <span className="key">Spot</span>: #{spot}
-              </div>
-            </div>
-
-            <div className="warning">Incorrect information can lead to delays or different spot assignment.</div>
-            <br />
-            <div className="warning u">You will not be able to request a different spot after submitting!</div>
-          </div>
-
-          <div className="btn">Submit</div>
-        </div>
+        {isEditingLicensePlate ? (
+          <LicensePlateInput onSubmit={onSubmitLicensePlate} />
+        ) : (
+          <ConfirmationBox licensePlate={licensePlate} spot={spot} onClickEditLicensePlate={() => setIsEditingLicensePlate(true)} />
+        )}
       </div>
       <div className="return">
         <div className="btn" onClick={() => (window.location.href = '/')}>

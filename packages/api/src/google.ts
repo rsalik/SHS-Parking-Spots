@@ -8,6 +8,7 @@ export async function verify(token: any) {
     // Or, if multiple clients access the backend:
     //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
   });
+  
   const payload = ticket.getPayload();
 
   if (!payload) {
@@ -20,6 +21,10 @@ export async function verify(token: any) {
 
   if (!payload.hd.includes('westportps.org')) {
     throw new Error('Invalid domain');
+  }
+
+  if (payload.exp < Date.now() / 1000) {
+    throw new Error('Token expired');
   }
 
   return {

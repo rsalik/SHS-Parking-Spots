@@ -1,0 +1,82 @@
+.box {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  width: 30em;
+  padding: 1em;
+
+  border-radius: 1em;
+
+  margin-left: 0.5em;
+
+  @include themed() {
+    border: t($accent) 0.2rem solid;
+  }
+
+  .title {
+    font-size: 2em;
+    font-weight: bold;
+  }
+
+  .u {
+    text-decoration: underline;
+  }
+
+  input {
+    background: none;
+    outline: none;
+
+    font-size: 1.5em;
+
+    margin: 0.5em 0;
+
+    padding: 0.4em 0.5em;
+    border-radius: 0.5rem;
+
+    @include themed() {
+      border: t($color) 0.1rem solid;
+      color: t($color);
+    }
+
+    transition: border-color 0.2s ease-in-out, color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+
+    &:focus {
+      @include themed() {
+        background: t($accent);
+        border-color: t($accent);
+        color: t($bkg);
+
+        &::placeholder {
+          color: mix(t($accent), t($bkg), 30%);
+        }
+      }
+    }
+  }
+
+  .info {
+    margin: 0.5rem 0;
+
+    .row {
+      margin: 0.2rem 0;
+      padding: 0.2rem 0.3rem;
+      border-radius: 0.4rem;
+
+      &:nth-of-type(even) {
+        @include themed() {
+          background-color: mix(t($bkg), t($accent), 70%);
+        }
+      }
+
+      &:nth-of-type(odd) {
+        @include themed() {
+          background-color: mix(t($bkg), t($accent), 90%);
+        }
+      }
+
+      .key {
+        font-weight: bold;
+      }
+    }
+  }
+}
