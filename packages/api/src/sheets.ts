@@ -30,15 +30,15 @@ export async function getSheetData() {
   return res.data.values;
 }
 
-export async function claimSpot(name: string, spot: number, licensePlate: string) {
+export async function claimSpot(user: any, spot: number, licensePlate: string) {
   if (!authClient) return;
 
-  const values = [[name, spot, licensePlate]];
+  const values = [[user.name, user.email, spot, licensePlate, new Date().toLocaleString()]];
 
   await googleSheetsInstance.spreadsheets.values.append({
     auth, //auth object
     spreadsheetId: SPREADSHEET_ID, // spreadsheet id
-    range: 'Sheet1!A2:Z', //range of cells to read from.
+    range: 'Sheet1!A3:Z', //range of cells to read from.
     valueInputOption: 'USER_ENTERED',
     insertDataOption: 'INSERT_ROWS',
     requestBody: {
@@ -49,5 +49,8 @@ export async function claimSpot(name: string, spot: number, licensePlate: string
 
 export async function getClaimedSpots() {
   const data = await getSheetData();
-  return data?.map((r) => parseInt(r[1])).filter((n) => !isNaN(n));
+  
+  if (!data || !data.length) return [];
+
+  return data?.map((r) => parseInt(r[2])).filter((n) => !isNaN(n));
 }

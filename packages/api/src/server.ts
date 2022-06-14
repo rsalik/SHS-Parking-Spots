@@ -25,14 +25,14 @@ app.get('/', async (req, res) => {
 });
 
 app.get('/api/taken-spots', async (req, res) => {
-  const data = await getSheetData();
+  const data = await getTakenSpots();
 
   if (!data) {
-    res.status(500).send('Error getting data');
+    res.status(500).send({ error: 'Error getting data' });
     return;
   }
 
-  res.send(await getTakenSpots());
+  res.send(data);
 });
 
 app.post('/api/login', async (req, res) => {
@@ -40,8 +40,10 @@ app.post('/api/login', async (req, res) => {
   let user = await verify(token);
 
   if (user) {
-    const tokenExpiration = new Date(Date.now() + 1000 * 60 * 60 * 24);
+    const tokenExpiration = new Date(Date.now() + 1000 * 60 * 15);
     res.cookie('token', token, { expires: tokenExpiration, httpOnly: true, secure: true });
+    res.cookie('signedIn', 'true', { expires: tokenExpiration, httpOnly: false, secure: false });
+
     res.json({ user: user, expires: tokenExpiration });
     return;
   }
@@ -52,11 +54,15 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/claim-spot', async (req, res) => {
   const { spot, licensePlate } = req.body;
 
-  console.log(req.cookies);
-  const { token } = req.cookies;
+  const { token, signedIn } = req.cookies;
 
   if (!token) {
     res.status(401).json({ error: 'No token' });
+    return;
+  }
+
+  if (!signedIn) {
+    res.status(401).json({ error: 'Invalid user' });
     return;
   }
 
@@ -79,11 +85,11 @@ app.post('/api/claim-spot', async (req, res) => {
     return;
   }
 
-  await claimSpot(user.name, parseInt(spot), licensePlate);
+  await claimSpot(user, parseInt(spot), licensePlate);
   res.status(200).send('Success');
 });
 
 app.listen(port, () => {
   console.log(`Running on ${port}`);
-  authorizeGoogleSheets().then(async () => console.log(await getSheetData()));
+  authorizeGoogleSheets();
 });
