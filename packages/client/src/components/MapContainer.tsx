@@ -2,7 +2,15 @@ import React, { useEffect, useState } from 'react';
 
 import { Wrapper, Status } from '@googlemaps/react-wrapper';
 import { getPolygons, SpotPolygon } from '../map-data/polygonParser';
-import { POLYGON_FILL_OPACITY, POLYGON_FREE, POLYGON_SELECTED_FILL_OPACITY, POLYGON_SELECTED_FREE } from '../styles/PolygonStyle';
+import {
+  POLYGON_FILL_OPACITY,
+  POLYGON_FREE,
+  POLYGON_SELECTED_FILL_OPACITY,
+  POLYGON_SELECTED_FREE,
+  POLYGON_SELECTED_TAKEN,
+  POLYGON_TAKEN,
+} from '../styles/PolygonStyle';
+import { getTakenSpots } from '../map-data/apiHelper';
 
 const render = (status: Status) => {
   return <h1>{status}</h1>;
@@ -21,9 +29,12 @@ export const Map: React.FC<MapProps> = ({ children, style, ...props }) => {
   const [map, setMap] = useState<google.maps.Map>();
   const [polygons, setPolygons] = useState<SpotPolygon[]>([]);
 
-  // Get Polygons
+  const [takenSpots, setTakenSpots] = useState<number[]>([]);
+
+  // Get Polygons & Taken Spots
   useEffect(() => {
     getPolygons().then(setPolygons);
+    getTakenSpots().then(setTakenSpots);
   }, []);
 
   // For checkout maps that show a specific spot, set the center to that spot
@@ -47,20 +58,38 @@ export const Map: React.FC<MapProps> = ({ children, style, ...props }) => {
         if (!props.spot) {
           s.polygon.addListener('click', () => {
             polygons.forEach((s) => {
-              s.polygon.setOptions({
-                fillColor: POLYGON_FREE,
-                strokeColor: POLYGON_FREE,
-                fillOpacity: POLYGON_FILL_OPACITY,
-                zIndex: 1,
-              });
+              if (takenSpots.includes(s.spot)) {
+                s.polygon.setOptions({
+                  fillColor: POLYGON_TAKEN,
+                  strokeColor: POLYGON_TAKEN,
+                  fillOpacity: POLYGON_FILL_OPACITY,
+                  zIndex: 1,
+                });
+              } else {
+                s.polygon.setOptions({
+                  fillColor: POLYGON_FREE,
+                  strokeColor: POLYGON_FREE,
+                  fillOpacity: POLYGON_FILL_OPACITY,
+                  zIndex: 1,
+                });
+              }
             });
 
-            s.polygon.setOptions({
-              fillColor: POLYGON_SELECTED_FREE,
-              strokeColor: POLYGON_SELECTED_FREE,
-              fillOpacity: POLYGON_SELECTED_FILL_OPACITY,
-              zIndex: 100,
-            });
+            if (takenSpots.includes(s.spot)) {
+              s.polygon.setOptions({
+                fillColor: POLYGON_SELECTED_TAKEN,
+                strokeColor: POLYGON_SELECTED_TAKEN,
+                fillOpacity: POLYGON_SELECTED_FILL_OPACITY,
+                zIndex: 100,
+              });
+            } else {
+              s.polygon.setOptions({
+                fillColor: POLYGON_SELECTED_FREE,
+                strokeColor: POLYGON_SELECTED_FREE,
+                fillOpacity: POLYGON_SELECTED_FILL_OPACITY,
+                zIndex: 100,
+              });
+            }
 
             onSelectSpot?.(s.spot);
           });
@@ -76,7 +105,7 @@ export const Map: React.FC<MapProps> = ({ children, style, ...props }) => {
         }
       });
     }
-  }, [polygons, map, onSelectSpot, props.spot]);
+  }, [polygons, map, onSelectSpot, props.spot, takenSpots]);
 
   useEffect(() => {
     if (ref.current && !map) {
@@ -91,6 +120,8 @@ export const Map: React.FC<MapProps> = ({ children, style, ...props }) => {
           minZoom: 18,
           disableDefaultUI: props.disableDefaultUI,
           gestureHandling: props.gestureHandling,
+          keyboardShortcuts: props.keyboardShortcuts,
+          fullscreenControl: false,
           restriction: {
             latLngBounds: {
               north: 41.156819,
@@ -131,6 +162,7 @@ export function MapContainer(props: { onSelectSpot?: Function; spot?: number; di
           style={{ flexGrow: '1', height: '100%' }}
           zoom={props.spot ? 20.5 : 19}
           gestureHandling={props.spot === undefined ? 'control' : 'none'}
+          keyboardShortcuts={props.spot === undefined}
           disableDefaultUI={props.disableUI}
           onSelectSpot={props.onSelectSpot}
           spot={props.spot}

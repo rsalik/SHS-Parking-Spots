@@ -1,6 +1,7 @@
 import Express from 'express';
 import { config as dotenvConfig } from 'dotenv';
-import { verify } from './google';
+import { verify } from './auth';
+import { authorizeGoogleSheets, getSheetData } from './sheets';
 
 dotenvConfig();
 
@@ -16,7 +17,21 @@ app.use((req, res, next) => {
 
 app.use(Express.json());
 
-app.get('/', (req, res) => {});
+app.get('/', async (req, res) => {
+  res.send('Hello World.');
+});
+
+app.get('/taken-spots', async (req, res) => {
+  const data = await getSheetData();
+
+  if (!data) {
+    res.status(500).send('Error getting data');
+    return;
+  }
+
+  const spots = data.map((r) => parseInt(r[1])).filter((n) => !isNaN(n));
+  res.send(spots);
+});
 
 app.post('/api/login', async (req, res) => {
   const { token } = req.body;
@@ -35,4 +50,5 @@ app.post('/api/login', async (req, res) => {
 
 app.listen(port, () => {
   console.log(`Running on ${port}`);
+  authorizeGoogleSheets().then(async () => console.log(await getSheetData()));
 });

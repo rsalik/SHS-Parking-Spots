@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router';
 import ConfirmationBox from '../components/ConfirmationBox';
 import LicensePlateInput from '../components/LicensePlateInput';
